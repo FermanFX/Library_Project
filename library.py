@@ -15,3 +15,10 @@ def create_book(title, author, year, is_read, genre="Unknown"):
         "genre": genre
     }
     return book
+def is_classic(book: dict):
+    if book["year"] < 1950:
+        return True
+    return False
+
+book1 = create_book("To Kill a Mockingbird", "Harper Lee", 1960, True, "Fiction")
+print(is_classic(book1)) 
