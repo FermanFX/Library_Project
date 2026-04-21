@@ -1,3 +1,4 @@
+import json
 app_name = "library"
 version = "0.1"
 is_active = True
@@ -30,6 +31,23 @@ def book_era(book: dict):
         return "classic"
     return True
 
+# count_call decorator
+def count_call(func):#2
+    """Decorator: counts function calls"""
+    call_count = 0
+    
+    def wrapper(*args, **kwargs):
+        nonlocal call_count
+        call_count += 1
+        result = func(*args, **kwargs)
+        print(f"[{func.__name__}] Call Count: {call_count}")
+        return result
+    
+    wrapper.__name__ = func.__name__
+    wrapper.__doc__ = func.__doc__
+    return wrapper
+
+@count_call #2
 def add_books(book: dict)-> None:
     library.append(book)
     print(f"Added '{book['title']}' to the library {len(library)}.")
@@ -63,7 +81,6 @@ print("Ortaq:", my_genres & friend_genres)
 print("Birləşmə:", my_genres | friend_genres)
 print("Fərq:", my_genres - friend_genres)
 
-#kitablarin janrlarini yazsin ve kitbalarin ili 1950-de kicikdir
 classic_books = [book["title"] for book in library if book["year"] < 1950]
 print(f'Classic books: {classic_books}')
 
@@ -80,20 +97,20 @@ class book:
         self.year = year
         self.is_read = is_read
         self.genre = genre
-        self.is_read = False
+        # self.is_read = False
 
-        def mark_as_read(self):
-            self.is_read = True
-            print(f"'{self.title}' marked as read.")
-        def display_info(self):
-            if self.is_read:
-                read_status = "Read"
-            else:
-                read_status = "Not Read"
+    def mark_as_read(self):
+        self.is_read = True
+        print(f"'{self.title}' marked as read.")
+    def display_info(self):
+        read_status = "Read" if self.is_read else "Not Read"
+        print(f"Title: {self.title}, Author: {self.author}, Year: {self.year}, Genre: {self.genre}, Status: {read_status}")
 
 class Library:
     def __init__(self):
         self.books = []
+    
+    @count_call #2
     def add_book(self, book):
         self.books.append(book)
         print(f"Added '{book.title}' to the library.")
@@ -104,3 +121,66 @@ class Library:
         for book in self.books:
             print(f"Title: {book.title}, Author: {book.author}, Year: {book.year}, Genre: {book.genre}, Status: {'Read' if book.is_read else 'Not Read'}")
             
+class Ebook(book): #4
+    def __init__(self, title, author, year, is_read, genre="Unknown", filesize=0):
+        super().__init__(title, author, year, is_read, genre)
+        self.filesize = filesize
+
+
+# book_iterator 
+def book_iterator(genre_filter): #1
+    for book in library:
+        if book["genre"] == genre_filter:
+            yield book
+            print(f"Title: {book['title']}, Author: {book['author']}, Year: {book['year']}, Genre: {book['genre']}, Read: {book['is_read']}")
+
+#Used json module to save and load the library from a file
+def save_library_to_json(file_name): #3
+    """Saves the function library to a JSON file"""
+    try:
+        with open(file_name, 'w', encoding='utf-8') as file:
+            json.dump(library, file, indent=4, ensure_ascii=False)
+        print(f"Library saved to {file_name}.")
+        return True
+    except FileNotFoundError:
+        print(f"Error: File path '{file_name}' not found.")
+        return False
+    except IOError as e:
+        print(f"IO Error while saving: {e}")
+        return False
+    except TypeError as e:
+        print(f"Error: Object cannot be serialized to JSON: {e}")
+        return False
+    except Exception as e:
+        print(f"Unexpected error saving library: {e}")
+        return False
+
+def load_library_from_json(file_name): #3
+    """Load the library from a JSON file"""
+    try:
+        with open(file_name, 'r', encoding='utf-8') as file:
+            loaded_books = json.load(file)
+        
+        if not isinstance(loaded_books, list):
+            print(f"Error: JSON file must contain a list of books.")
+            return False
+        
+        library.clear()
+        library.extend(loaded_books)
+        print(f"Library loaded from {file_name}. Total books: {len(library)}")
+        return True
+    except FileNotFoundError:
+        print(f"Error: File '{file_name}' not found.")
+        return False
+    except json.JSONDecodeError:
+        print(f"Error: Invalid JSON format in '{file_name}'.")
+        return False
+    except IOError as e:
+        print(f"IO Error while loading: {e}")
+        return False
+    except Exception as e:
+        print(f"Unexpected error loading library: {e}")
+        return False
+
+save_library_to_json("./data/library.json")
+load_library_from_json("./data/library.json")

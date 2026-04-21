@@ -1,0 +1,23 @@
+[
+    {
+        "title": "Əli və Nino",
+        "author": "Qurban Səid",
+        "year": 1937,
+        "is_read": "Roman",
+        "genre": "Unknown"
+    },
+    {
+        "title": "1984",
+        "author": "George Orwell",
+        "year": 1949,
+        "is_read": "Distopiya",
+        "genre": "Unknown"
+    },
+    {
+        "title": "Sapiens",
+        "author": "Yuval Noah Harari",
+        "year": 2011,
+        "is_read": "Tarix",
+        "genre": "Unknown"
+    }
+]
